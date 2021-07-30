@@ -61,10 +61,46 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+const displayMovement = function (movement) {
+  containerMovements.innerHTML = '';
+  movement.forEach(function (mov, i) {
+    const type = mov > 0 ? 'deposit' : 'withdrawal';
+    const html = `
+    <div class="movements__row">
+      <div class="movements__type movements__type--${type}">${
+      i + 1
+    } ${type}</div>
+      <div class="movements__value">${mov}</div>
+    </div>`;
+    containerMovements.insertAdjacentHTML('afterbegin', html);
+  });
+};
+displayMovement(account1.movements);
+// const totalBalance = function (accs) {
+//   accs.forEach(acc => {
+//     acc.balance = acc.movements.reduce((acc, cur) => acc + cur);
+//   });
+// };
+const totalBalance = function (mov) {
+  const balance = mov.reduce((acc, cur) => acc + cur, 0);
+  labelBalance.textContent = `${balance} EUR`;
+};
+totalBalance(account1.movements);
+const creatUserNames = function (accs) {
+  accs.forEach(function (acc) {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map(val => val[0])
+      .join('');
+  });
+};
+creatUserNames(accounts);
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
-
+/*
 const currencies = new Map([
   ['USD', 'United States dollar'],
   ['EUR', 'Euro'],
@@ -116,3 +152,52 @@ console.log(arr);
 //splice
 console.log(arr.splice(2,2));
 console.log(arr);*/
+
+/*
+///challenge 1
+
+const checkDog=function(juliaArr,kateArr){
+  const juliaCorrected=juliaArr;
+  juliaCorrected.splice(0,1) ;
+  juliaCorrected.splice(-2,2);
+
+ 
+  const bothArr=[...juliaCorrected,...kateArr];
+  console.log(bothArr)
+  bothArr.forEach(function(val,i){
+    if(val>=3){
+      console.log(`Dog number ${i+1} is an adult, and is ${val} Years old`);
+    }else{
+      console.log(`Dog number ${i+1} is still a puppy`)
+    }
+      });
+}
+checkDog([3, 5, 2, 12, 7],[4, 1, 15, 8, 3]);
+
+
+////MAP METHODS
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+const eurtoUsd=1.1;
+// const movementsUsd= movements.map(function(mov){
+//   return  (mov*eurtoUsd).toFixed(2);
+// })
+const movementsUsd= movements.map(mov=>
+    (mov*eurtoUsd).toFixed(2));
+
+console.log(movements);
+console.log(movementsUsd)
+
+const arrowMovementMap=movements.map((mov,i,arr)=>
+`Movement ${i+1}: You ${mov>0?"deposit":"withdrew"} ${Math.abs(mov)}`);
+console.log(arrowMovementMap)
+*/
+//////FILTER
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+const deposites = movements.filter(function (mov) {
+  return mov > 0;
+});
+console.log(deposites);
+const withdraws = movements.filter(mov => {
+  return mov < 0;
+});
+console.log(withdraws);
