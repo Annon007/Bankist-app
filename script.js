@@ -70,12 +70,11 @@ const displayMovement = function (movement) {
       <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-      <div class="movements__value">${mov}</div>
+      <div class="movements__value">${mov}€</div>
     </div>`;
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-displayMovement(account1.movements);
 // const totalBalance = function (accs) {
 //   accs.forEach(acc => {
 //     acc.balance = acc.movements.reduce((acc, cur) => acc + cur);
@@ -83,9 +82,23 @@ displayMovement(account1.movements);
 // };
 const totalBalance = function (mov) {
   const balance = mov.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${balance} EUR`;
+  labelBalance.textContent = `${balance}€`;
 };
-totalBalance(account1.movements);
+const calcDisplaySummary = function (arr, currentAcc) {
+  const deposte = arr.filter(mov => mov > 0).reduce((acc, cur) => acc + cur, 0);
+  const withdraw = arr
+    .filter(mov => mov < 0)
+    .reduce((acc, cur) => acc + cur, 0);
+
+  const interest = arr
+    .filter(mov => mov > 0)
+    .map(int => (int * currentAcc.interestRate) / 100)
+    .filter(int => int >= 1)
+    .reduce((acc, cur) => acc + cur, 0);
+  labelSumIn.textContent = `${deposte}€`;
+  labelSumOut.textContent = `${Math.abs(withdraw)}€`;
+  labelSumInterest.textContent = `${interest}€`;
+};
 const creatUserNames = function (accs) {
   accs.forEach(function (acc) {
     acc.username = acc.owner
@@ -96,7 +109,25 @@ const creatUserNames = function (accs) {
   });
 };
 creatUserNames(accounts);
-
+let currentAcc;
+btnLogin.addEventListener('click', function (e) {
+  e.preventDefault(); ///Prevent form from submitting
+  currentAcc = accounts.find(acc => acc.username === inputLoginUsername.value);
+  console.log(currentAcc);
+  if (currentAcc?.pin === Number(inputLoginPin.value)) {
+    console.log('login');
+    labelWelcome.textContent = `Welcome back, ${
+      currentAcc.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = 100;
+    displayMovement(currentAcc.movements);
+    totalBalance(currentAcc.movements);
+    calcDisplaySummary(currentAcc.movements, currentAcc);
+    inputLoginUsername.value = '';
+    inputLoginPin.value = '';
+    inputLoginPin.blur();
+  }
+});
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
@@ -201,3 +232,19 @@ const withdraws = movements.filter(mov => {
   return mov < 0;
 });
 console.log(withdraws);
+//// challenge 2
+const calcAvg = function (arr) {
+  const humanAge = arr
+    .map(age => (age > 2 ? 16 + age * 4 : age * 2))
+    .filter(age => age >= 18)
+    .reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+  return humanAge;
+  // const humanAges = arr.map(age => (age <= 2 ? 2 * age : 16 + age * 4));
+  // const adults = humanAges.filter(age => age >= 18);
+  // console.log(humanAges);
+  // console.log(adults);
+  // const avg = adults.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+  // return avg;
+};
+console.log(calcAvg([5, 2, 4, 1, 15, 8, 3]));
+console.log(calcAvg([16, 6, 10, 5, 6, 1, 4]));
