@@ -75,15 +75,14 @@ const displayMovement = function (movement) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-// const totalBalance = function (accs) {
-//   accs.forEach(acc => {
-//     acc.balance = acc.movements.reduce((acc, cur) => acc + cur);
-//   });
-// };
-const totalBalance = function (mov) {
-  const balance = mov.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${balance}€`;
+const totalBalance = function (accs) {
+  accs.balance = accs.movements.reduce((acc, cur) => acc + cur);
+  labelBalance.textContent = `${accs.balance}€`;
 };
+// const totalBalance = function (mov) {
+//   const balance = mov.reduce((acc, cur) => acc + cur, 0);
+//   labelBalance.textContent = `${balance}€`;
+// };
 const calcDisplaySummary = function (arr, currentAcc) {
   const deposte = arr.filter(mov => mov > 0).reduce((acc, cur) => acc + cur, 0);
   const withdraw = arr
@@ -110,6 +109,11 @@ const creatUserNames = function (accs) {
 };
 creatUserNames(accounts);
 let currentAcc;
+const updateUI = function (currentAcc) {
+  displayMovement(currentAcc.movements);
+  totalBalance(currentAcc);
+  calcDisplaySummary(currentAcc.movements, currentAcc);
+};
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault(); ///Prevent form from submitting
   currentAcc = accounts.find(acc => acc.username === inputLoginUsername.value);
@@ -120,13 +124,30 @@ btnLogin.addEventListener('click', function (e) {
       currentAcc.owner.split(' ')[0]
     }`;
     containerApp.style.opacity = 100;
-    displayMovement(currentAcc.movements);
-    totalBalance(currentAcc.movements);
-    calcDisplaySummary(currentAcc.movements, currentAcc);
+    updateUI(currentAcc);
     inputLoginUsername.value = '';
     inputLoginPin.value = '';
     inputLoginPin.blur();
   }
+});
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAccount = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
+  if (
+    amount > 0 &&
+    receiverAccount &&
+    currentAcc.balance >= amount &&
+    receiverAccount?.username !== currentAcc.username
+  ) {
+    console.log('Transfer Valid');
+    currentAcc.movements.push(-amount);
+    receiverAccount.movements.push(amount);
+    updateUI(currentAcc);
+    inputTransferAmount.value = inputTransferTo.value = '';
+  } else console.log('Cheating! cheating!');
 });
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
